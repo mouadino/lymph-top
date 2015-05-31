@@ -29,9 +29,6 @@ class MetricsPoller(object):
     def run(self):
         gevent.spawn(self._loop)
 
-    def fail(self, g):
-        raise SystemExit(g.exception)
-
     def _loop(self):
         while self.running:
             self._refresh_metrics()
