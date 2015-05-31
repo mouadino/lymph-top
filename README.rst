@@ -3,6 +3,14 @@ lymph-top
 
 A top-like utility for monitoring lymph [1]_ services.
 
+Installation
+============
+::
+
+    pip install git+https://github.com/mouadino/lymph-top.git
+
+Soon we will be in pypi !
+
 Usage
 =====
 ::
