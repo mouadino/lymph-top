@@ -53,10 +53,9 @@ class TopCommand(Command):
         self.metrics_poller = MetricsPoller(Client.from_config(self.config))
         # TODO: Set TextOption values from command line arguments.
         self.input = UserInput({
-            'o': TextOption('order', 'Set sort by column e.g. +name', self._on_order),
+            'o': TextOption('order', 'Set order by column e.g. +name', self._on_order),
             'f': TextOption('fqdns', 'Set comma separated fqdns to show, set to empty to disable filtering', self._on_filetring_by_fqdns),
             'n': TextOption('name', 'Set comma separated services name to show, set to empty to disable filtering', self._on_filetring_by_names),
-            'o': TextOption('order', 'Set sort by column e.g. +name', self._on_order),
             '?': UniqueKeyOption('', 'Show this help message', self._on_help),
             'KEY_ESCAPE': UniqueKeyOption('', 'Quit terminal or active command', self._on_escape),
         })
