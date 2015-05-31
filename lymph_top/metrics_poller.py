@@ -7,50 +7,53 @@ import gevent
 from lymph.utils import Undefined
 from lymph.exceptions import Timeout
 
+from .fail import gracefull_fail
+
 
 class MetricsPoller(object):
 
-    def __init__(self, client, timeout=1, interval=2, fqdn=None, name=None):
+    def __init__(self, client, timeout=1, interval=2, fqdns=None, names=None):
         self._client = client
         self._instances = {}
 
         self.timeout = timeout
         self.interval = interval
-        self.fqdn = fqdn
-        self.name = name
+        self.fqdns = fqdns
+        self.names = names
         self.running = True
 
     @property
     def instances(self):
         return self._instances
 
-    def run(self, *_):
-        greenlet = gevent.spawn(self._loop)
-        # Respawn when greenlet die.
-        greenlet.link_exception(self.run)
-        greenlet.start()
+    def run(self):
+        gevent.spawn(self._loop)
+
+    def fail(self, g):
+        raise SystemExit(g.exception)
 
     def _loop(self):
         while self.running:
             self._refresh_metrics()
             time.sleep(self.interval)
 
+    @gracefull_fail
     def _refresh_metrics(self):
         services = self._client.container.discover()
         alive_endpoints = set()
         for interface_name in services:
-            if self.name and interface_name != self.name:
+            if self.names and interface_name not in self.names:
                 continue
             interface_instances = self._client.container.lookup(interface_name)
-            for instance in interface_instances:
-                if self.fqdn and instance.fqdn != self.fqdn:
+            for instance in list(interface_instances):
+                if self.fqdns and instance.fqdn not in self.fqdns:
                     continue
                 metrics = self._get_instance_metrics(instance)
                 if not metrics:
                     continue
                 self._instances[instance.endpoint] = InstanceInfo(interface_name, instance.endpoint, metrics)
                 alive_endpoints.add(instance.endpoint)
-        for endpoint in self._instances:
+        for endpoint in self._instances.keys():
             if endpoint not in alive_endpoints:
                 self._instances.pop(endpoint, None)
 

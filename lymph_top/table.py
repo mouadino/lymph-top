@@ -7,27 +7,27 @@ import six
 
 class Table(object):
 
-    def __init__(self, headers, limit=None, prettifier=lambda _, value: value, sort_by=None):
+    def __init__(self, headers, limit=None, prettifier=lambda _, value: value, order_by=None):
         self._prettifier = prettifier
         self._instances = {}
         self._metrics_received = False
 
         self.headers = headers
         self.limit = limit
-        self.sort_by = sort_by or '-name'
+        self.order_by = order_by or '-name'
 
     @property
-    def sort_by(self):
-        return self._sort_by
+    def order_by(self):
+        return self._order_by
 
-    @sort_by.setter
-    def sort_by(self, sort_by):
-        if not sort_by.startswith(("-", "+")):
-            sort_by = "-" + sort_by
-        order, column = sort_by[0], sort_by[1:]
+    @order_by.setter
+    def order_by(self, order_by):
+        if not order_by.startswith(("-", "+")):
+            order_by = "-" + order_by
+        order, column = order_by[0], order_by[1:]
         for header, _ in self.headers:
             if column == header:
-                self._sort_by = header
+                self._order_by = header
                 break
         else:
             raise ValueError('Unkown column %r' % column)
@@ -35,7 +35,7 @@ class Table(object):
 
     @property
     def instances(self):
-        return sorted(self._instances.values(), reverse=self._ascending, key=op.methodcaller('get', self._sort_by, default=None))
+        return sorted(self._instances.values(), reverse=self._ascending, key=op.methodcaller('get', self._order_by, default=None))
 
     @instances.setter
     def instances(self, new_instances):
@@ -48,7 +48,7 @@ class Table(object):
 
     def _display_headers(self, terminal):
         for header, size in self.headers:
-            if header == self._sort_by:
+            if header == self._order_by:
                 header += " ▼" if self._ascending else " ▲"
             header = self._truncate(header, size)
             print(terminal.bold(header), end=' ')
