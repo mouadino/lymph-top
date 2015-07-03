@@ -114,13 +114,13 @@ class TopCommand(Command):
 
     def _top(self):
         while True:
-            with self.terminal.location(0, 2):
-                self.metrics_table.display(self.terminal)
-            with self.terminal.location(0, 1):
-                self.input.display(self.terminal)
-            self.metrics_table.instances = self.metrics_poller.instances
-            time.sleep(.01)
-            print(self.terminal.clear, end='')
+            with self.terminal.hidden_cursor():
+                with self.terminal.location(0, 2):
+                    self.metrics_table.display(self.terminal)
+                with self.terminal.location(0, 1):
+                    self.input.display(self.terminal)
+                self.metrics_table.instances = self.metrics_poller.instances
+                time.sleep(.01)
 
     def _on_help(self):
         def print_line(line):

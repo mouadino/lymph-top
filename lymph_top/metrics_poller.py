@@ -37,7 +37,7 @@ class MetricsPoller(object):
     @gracefull_fail
     def _refresh_metrics(self):
         services = self._client.container.discover()
-        alive_endpoints = set()
+        current_instances = {}
         for interface_name in services:
             if self.names and interface_name not in self.names:
                 continue
@@ -48,11 +48,8 @@ class MetricsPoller(object):
                 metrics = self._get_instance_metrics(instance)
                 if not metrics:
                     continue
-                self._instances[instance.endpoint] = InstanceInfo(interface_name, instance.endpoint, metrics)
-                alive_endpoints.add(instance.endpoint)
-        for endpoint in self._instances.keys():
-            if endpoint not in alive_endpoints:
-                self._instances.pop(endpoint, None)
+                current_instances[instance.endpoint] = InstanceInfo(interface_name, instance.endpoint, metrics)
+        self._instances = current_instances
 
     def _get_instance_metrics(self, instance):
         try:

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function, unicode_literals
 import operator as op
+import sys
 
 import six
 
@@ -45,14 +46,15 @@ class Table(object):
     def display(self, terminal):
         self._display_headers(terminal)
         self._display_metrics(terminal)
+        print(terminal.clear_eos, end='')
 
     def _display_headers(self, terminal):
         for header, size in self.headers:
             if header == self._order_by:
                 header += " ▼" if self._ascending else " ▲"
             header = self._truncate(header, size)
-            print(terminal.bold(header), end=' ')
-        print()  # flush
+            print('%s%s' % (terminal.clear_eol, terminal.bold(header)), end=' ')
+        print()
 
     def _display_metrics(self, terminal):
         for instance in self.instances[:self.limit]:
@@ -61,13 +63,14 @@ class Table(object):
                 value = instance.get(name, 'N/A')
                 value = self._prettifier(name, value)
                 values.append((value, size))
-            print(' '.join(self._truncate(value, size) for value, size in values))
+            line = ' '.join(self._truncate(value, size) for value, size in values)
+            print('%s%s' % (terminal.clear_eol, line))
         if not self.instances:
             if self._metrics_received:
-                print('No metrics found')
+                print('%s%s' % (terminal.clear_eol, 'No metrics found'))
             else:
-                print('Fetching metrics ...')
-        print()  # flush
+                print('%s%s' % (terminal.clear_eol, 'Fetching metrics ...'))
+        sys.stdout.flush()
 
     @staticmethod
     def _truncate(value, size):

@@ -85,7 +85,7 @@ class UserInput(object):
         return ''
 
     def display(self, terminal):
-        print(self.status, end='')
+        print('%s%s' % (terminal.clear_eol, self.status), end='')
         sys.stdout.flush()  # We don't want a new line after command.
         self._read_stdin(terminal)
 

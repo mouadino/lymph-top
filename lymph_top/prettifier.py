@@ -29,8 +29,15 @@ prettifier = _Prettifier()
 def format_memory_usage(value):
     """Prettify memory size.
 
+    Notes:
+       maxrss is in kilobytes in Lunix and bytes in OSX.
+
+        - http://man7.org/linux/man-pages/man2/getrusage.2.html
+        - https://developer.apple.com/library/mac/documentation/Darwin/Reference/ManPages/man2/getrusage.2.html
+
     Example:
-        >>> format_memory_usage('81673856')
-        '77M'
+    >>> format_memory_usage('81673856')
+    '77M'
     """
-    return sizing.size(int(value))
+    # XXX: Assume linux !
+    return sizing.size(int(value) * 1000)
